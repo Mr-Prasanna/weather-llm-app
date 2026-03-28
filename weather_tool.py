@@ -76,10 +76,28 @@ BASE_URL = "https://api.openweathermap.org/data/2.5"
 
 #     return result
 
+# def get_weather(city: str, units: str = "metric") -> dict:
+    
+#     # Clean city name — remove extra spaces and special characters
+#     city = city.strip().strip("?.,!")
+    
+#     current_resp = requests.get(
+#         f"{BASE_URL}/weather",
+#         params={
+#             "q": city,
+#             "appid": WEATHER_API_KEY,
+#             "units": units
+#         }
+#     )
+
+#     if current_resp.status_code != 200:
+#         return {"error": f"City '{city}' not found. Please check the city name."}
+    
 def get_weather(city: str, units: str = "metric") -> dict:
     
-    # Clean city name — remove extra spaces and special characters
-    city = city.strip().strip("?.,!")
+    # Clean city name
+    city = city.strip().strip("?.,!\"'")
+    print(f"DEBUG: Fetching weather for city = '{city}'")
     
     current_resp = requests.get(
         f"{BASE_URL}/weather",
@@ -89,11 +107,12 @@ def get_weather(city: str, units: str = "metric") -> dict:
             "units": units
         }
     )
-
+    print(f"DEBUG: Status code = {current_resp.status_code}")
+    
     if current_resp.status_code != 200:
-        return {"error": f"City '{city}' not found. Please check the city name."}
-    
-    
+        return {"error": f"City '{city}' not found. Please check the city name."}    
+
+
 @tool
 def weather_tool(city: str) -> str:
     """
