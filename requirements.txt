@@ -1,0 +1,12 @@
+streamlit
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-groq
+openai
+requests
+python-dotenv
+plotly
+langsmith
+certifi
