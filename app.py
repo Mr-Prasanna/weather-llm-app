@@ -284,29 +284,65 @@ with st.sidebar:
         st.rerun()
 
 # ── City extractor ───────────────────────────────────────────────────
+# def extract_city(text: str) -> str:
+#     text = text.strip()
+
+#     match = re.search(
+#         r'weather\s+(?:in|of|for)\s+([A-Za-z\s]+?)(?:\?|$|\.)',
+#         text, re.IGNORECASE
+#     )
+#     if match:
+#         return match.group(1).strip().title()
+
+#     match = re.search(r'\bin\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)', text)
+#     if match:
+#         return match.group(1).strip().title()
+
+#     words = text.split()
+#     for word in reversed(words):
+#         if word[0].isupper() and word.lower() not in [
+#             "what", "how", "tell", "the", "is", "are", "will"
+#         ]:
+#             return word.title()
+
+#     return None
+
+# ── City extractor ───────────────────────────────────────────────────
 def extract_city(text: str) -> str:
     text = text.strip()
 
+    # Pattern 1: "weather in CITY"
     match = re.search(
         r'weather\s+(?:in|of|for)\s+([A-Za-z\s]+?)(?:\?|$|\.)',
         text, re.IGNORECASE
     )
     if match:
-        return match.group(1).strip().title()
+        return match.group(1).strip()
 
-    match = re.search(r'\bin\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)', text)
+    # Pattern 2: "in CITY" anywhere
+    match = re.search(
+        r'\bin\s+([A-Za-z]+(?:\s+[A-Za-z]+)?)',
+        text, re.IGNORECASE
+    )
     if match:
-        return match.group(1).strip().title()
+        city = match.group(1).strip()
+        skip = ["the", "a", "an", "my", "your", "our", "this", "that"]
+        if city.lower() not in skip:
+            return city
 
+    # Pattern 3: last capitalized word
     words = text.split()
+    skip_words = [
+        "what", "how", "tell", "the", "is", "are",
+        "will", "was", "were", "about", "weather",
+        "today", "tomorrow", "forecast", "current"
+    ]
     for word in reversed(words):
-        if word[0].isupper() and word.lower() not in [
-            "what", "how", "tell", "the", "is", "are", "will"
-        ]:
-            return word.title()
+        clean = word.strip("?.,!")
+        if clean and clean[0].isupper() and clean.lower() not in skip_words:
+            return clean
 
     return None
-
 # ── Chart function ───────────────────────────────────────────────────
 def show_weather_chart(city: str, units: str):
     try:
